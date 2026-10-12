@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mein 3D-Würfel</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: #111827;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+      font-size: 2rem;
+    }
+
+    p {
+      color: #cbd5e1;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .scene {
+      width: 200px;
+      height: 200px;
+      margin: 70px 0;
+      perspective: 800px;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .scene:active {
+      cursor: grabbing;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-25deg) rotateY(-35deg);
+      will-change: transform;
+    }
+
+    .face {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      display: grid;
+      place-items: center;
+      border: 3px solid white;
+      border-radius: 18px;
+      background: #2563eb;
+      color: white;
+      font-size: 5rem;
+      font-weight: bold;
+      box-shadow: inset 0 0 30px #0003;
+      backface-visibility: hidden;
+    }
+
+    .front  { transform: translateZ(100px); }
+    .back   { transform: rotateY(180deg) translateZ(100px); }
+    .right  { transform: rotateY(90deg) translateZ(100px); }
+    .left   { transform: rotateY(-90deg) translateZ(100px); }
+    .top    { transform: rotateX(90deg) translateZ(100px); }
+    .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+    .face:nth-child(2) { background: #dc2626; }
+    .face:nth-child(3) { background: #16a34a; }
+    .face:nth-child(4) { background: #9333ea; }
+    .face:nth-child(5) { background: #ea580c; }
+    .face:nth-child(6) { background: #0891b2; }
+
+    button {
+      padding: 12px 22px;
+      border: none;
+      border-radius: 10px;
+      background: #3b82f6;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:focus-visible {
+      outline: 3px solid white;
+      outline-offset: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🎲 Mein 3D-Würfel</h1>
+  <p>Halte die Maustaste gedrückt und ziehe den Würfel.</p>
+
+  <div class="scene" id="scene">
+    <div class="cube" id="cube">
+      <div class="face front">1</div>
+      <div class="face back">6</div>
+      <div class="face right">3</div>
+      <div class="face left">4</div>
+      <div class="face top">2</div>
+      <div class="face bottom">5</div>
+    </div>
+  </div>
+
+  <button id="reset">Ansicht zurücksetzen</button>
+
+  <script>
+    const scene = document.getElementById("scene");
+    const cube = document.getElementById("cube");
+    const reset = document.getElementById("reset");
+
+    let rotationX = -25;
+    let rotationY = -35;
+
+    let startX = 0;
+    let startY = 0;
+    let previousX = 0;
+    let previousY = 0;
+    let dragging = false;
+
+    function updateCube() {
+      cube.style.transform =
+        `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+    }
+
+    scene.addEventListener("pointerdown", (event) => {
+      dragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      previousX = event.clientX;
+      previousY = event.clientY;
+
+      scene.setPointerCapture(event.pointerId);
+    });
+
+    scene.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+
+      const deltaX = event.clientX - previousX;
+      const deltaY = event.clientY - previousY;
+
+      rotationY += deltaX * 0.8;
+      rotationX -= deltaY * 0.8;
+
+      previousX = event.clientX;
+      previousY = event.clientY;
+
+      updateCube();
+    });
+
+    function stopDragging() {
+      dragging = false;
+    }
+
+    scene.addEventListener("pointerup", stopDragging);
+    scene.addEventListener("pointercancel", stopDragging);
+
+    reset.addEventListener("click", () => {
+      rotationX = -25;
+      rotationY = -35;
+      updateCube();
+    });
+  </script>
+</body>
+</html>
